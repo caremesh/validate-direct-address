@@ -12,8 +12,9 @@ describe('Validator @Validator', function() {
     expect(validator.assertValid('doc@example.com')).to.be.rejected.and.notify(done);
   });
 
-  it('Should accept a "real" direct address with a domain certificate @Validator.2', function(done) {
-    expect(validator.assertValid('patrick@direct.viacaremesh.com')).to.be.fulfilled.and.notify(done);
+
+  it('should reject an direct addresss that\'s in an invalid format @Validator.2', function(done) {
+    expect(validator.assertValid('xample.com')).to.be.rejected.and.notify(done);
   });
 
   it('Should accept a "real" direct address with an individual certification @Validator.3', function(done) {
@@ -27,5 +28,14 @@ describe('Validator @Validator', function() {
   it('should detect if a cert wasn\'t signed by a HISP @Validator.5', function(done) {
     // Use mya ddress from our staging environment, which is not in the production trust bundle
     expect(validator.assertValid('patrick@caremeshstage.dmhisp.com')).to.be.rejected.and.notify(done);
+  });
+
+
+  it('should reject an direct addresss that\'s in an invalid format using isValid @Validator.6', async function() {
+    expect(await validator.isValid('xample.com')).to.equal(false);
+  });
+
+  it('should reject an direct addresss that\'s in an invalid format using isValid @Validator.7', async function() {
+    expect(await validator.isValid('patrick@direct.viacaremesh.com')).to.equal(true);
   });
 });

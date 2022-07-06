@@ -17,6 +17,20 @@ module.exports = class Validator {
   }
 
   /**
+   * Return true or false (but don't throw) to indicate
+   * whether a direct address is valid.
+   * @param {string} address a direct address to validate
+   * @return {Promise<boolean>}
+   */
+  async isValid(address) {
+    try {
+      return await this.assertValid(address);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * @param {string} address a direct address to validate
    * @return {Promise<boolean>}
    */

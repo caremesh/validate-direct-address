@@ -8,13 +8,13 @@ will process it correctly.
 ## USAGE
 
 ```
-const validator = require('validate-direct-address');
+const {Validator} = require('validate-direct-address');
 
 async main() {
-  await validator.updateTrustBundle();
+  const validator = new Validator();
 
   await validator.isValid('nonexistent@nowhere.com'); // Returns 'false' because the domain certificate does not exist
-  await validator.isValid('nonexistent@direct.caremesh.com'); // Returns 'true' because the domain certificate exists.
+  await validator.isValid('nonexistent@direct.viacaremesh.com'); // Returns 'true' because the domain certificate exists.
   await validator.assertValid('nonexistent@nowhere.com'); // Throws an error
 }
 ```
