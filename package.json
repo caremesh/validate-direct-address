@@ -1,5 +1,5 @@
 {
-  "name": "validate-direct-address",
+  "name": "@caremesh/validate-direct-address",
   "version": "1.0.0",
   "description": "This package validates that \"email\" addresses are in fact DirectTrust addresses.",
   "main": "index.js",
