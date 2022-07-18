@@ -1,6 +1,7 @@
 const {default: axios} = require('axios');
 const asn1js = require('asn1js');
 const pkijs = require('pkijs');
+const _ = require('lodash');
 
 module.exports = class TrustBundle {
   /**

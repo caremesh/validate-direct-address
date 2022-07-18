@@ -1,6 +1,7 @@
 /* eslint-disable new-cap */
 const Promise = require('bluebird');
 const dns = require('native-node-dns');
+const _ = require('lodash');
 
 const TrustBundle = require('./trust-bundle');
 
@@ -24,7 +25,8 @@ module.exports = class Validator {
    */
   async isValid(address) {
     try {
-      return await this.assertValid(address);
+      await this.assertValid(address);
+      return true;
     } catch (error) {
       return false;
     }
