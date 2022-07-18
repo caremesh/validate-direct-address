@@ -1,9 +1,16 @@
 # validate-direct-address
 
-Validates a Direct Trust email address. To be clear, validation with this library 
-guarantees that an email address is a DirectTrust address.  It does not guarantee 
-that messages sent to that address will be delivered or that the receiving system
-will process it correctly.
+Validates a Direct Trust email address.  The main purpose in developing this library is to 
+prevent users from entering email addresses in as direct addresses.
+
+To be clear, validation with this library checks that an email address is a 
+DirectTrust address.  It does not guarantee that messages sent to that 
+address will be delivered or that the receiving system will process it 
+correctly.  More importantly, while it confirms that the certificate 
+**appears** to be signed by a CA in the trust bundle, it does not guarantee
+it.  It's for validating input, not security.
+
+It has not been tested (and probably won't work) in the browser environment.
 
 ## USAGE
 
