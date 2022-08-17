@@ -18,11 +18,12 @@ It has not been tested (and probably won't work) in the browser environment.
 const {Validator} = require('validate-direct-address');
 
 async main() {
-  const validator = new Validator();
+   // use the default trust bundle, 1000ms timeout, 2 retries.  All options are optional
+  const validator = new Validator(undefined, 1000, 2);
 
   await validator.isValid('nonexistent@nowhere.com'); // Returns 'false' because the domain certificate does not exist
   await validator.isValid('nonexistent@direct.viacaremesh.com'); // Returns 'true' because the domain certificate exists.
-  await validator.assertValid('nonexistent@nowhere.com'); // Throws an error
+  await validator.assertValid('nonexistent@nowhere.com'); // Throws an error.  Use this or isValid based on what fits your code
 }
 ```
 

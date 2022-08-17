@@ -1,5 +1,6 @@
 /* eslint-disable new-cap */
 const Promise = require('bluebird');
+const debug = require('debug')('validate-direct-address');
 const dns = require('native-node-dns');
 const _ = require('lodash');
 
@@ -12,9 +13,13 @@ module.exports = class Validator {
   /**
    *
    * @param {string} trustBundleUrl override the default trust bundle URL
+   * @param {number} [timeout] DNS timeout
+   * @param {number} [retries] how many times to retry
    */
-  constructor(trustBundleUrl) {
+  constructor(trustBundleUrl, timeout=30000, retries = 3) {
     this.trustBundle = new TrustBundle(trustBundleUrl);
+    this.timeout = timeout;
+    this.retries = retries;
   }
 
   /**
@@ -28,6 +33,7 @@ module.exports = class Validator {
       await this.assertValid(address);
       return true;
     } catch (error) {
+      console.error(error);
       return false;
     }
   }
@@ -44,17 +50,28 @@ module.exports = class Validator {
     // First lookup `user.domain.com`, then if that fails try `domain.com`
     const [lhs, rhs] = address.split(/@/);
     let results;
-    try {
-      results = await this._lookup(`${lhs}.${rhs}`);
-    } catch (error) {
+    for (let i=0; i<this.retries; i++) {
       try {
-        results = await this._lookup(rhs);
+        debug(`try ${i} for ${lhs}.${rhs}`);
+        results = await this._lookup(`${lhs}.${rhs}`);
+        if (results[0]) break;
       } catch (error) {
-        throw new Error(`Could not find matching CERT record for ${address}: ${error.message}`);
+        try {
+          debug(`try #{i} for ${rhs}`);
+          results = await this._lookup(rhs);
+          if (results[0]) break;
+        } catch (error) {
+          debug(error);
+          throw new Error(`Could not find matching CERT record for ${address}: ${error.message}`);
+        }
       }
     }
 
-    if (!await this.trustBundle.verifyCert(results[0].toString('base64'))) {
+    if (results[0] == null) {
+      throw new Error(`Got no results for ${address}`);
+    }
+
+    if ( !await this.trustBundle.verifyCert(results[0].toString('base64'))) {
       throw new Error(`Certificate for ${address} was not signed by a HISP!`);
     }
     return true;
@@ -77,7 +94,7 @@ module.exports = class Validator {
         question: question,
         server: {address: '8.8.8.8', port: 53, type: 'tcp',
         },
-        timeout: 1000,
+        timeout: this.timeout,
       });
 
       req.on('timeout', () => {
@@ -86,11 +103,15 @@ module.exports = class Validator {
 
       req.on('message', function(err, response) {
         if (_.get(response, 'answer.length', 0) == 0) {
-          return reject(new Error(`No such domain: ${domain}`));
+          return null;
         }
         results = _.map(response.answer, (i) => {
           return i.data.buffer.slice(5);
         });
+      });
+
+      req.on('error', function(error) {
+        reject(error);
       });
 
       req.on('end', function() {

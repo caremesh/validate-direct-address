@@ -2,10 +2,10 @@ const Validator = require('./validator');
 
 describe('Validator @Validator', function() {
   let validator;
+  this.timeout(10000);
 
   before(async function() {
-    this.timeout(10000);
-    validator = new Validator();
+    validator = new Validator(undefined, 1000, 3);
   });
 
   it('Should reject a "fake" direct address @Validator.1', function(done) {
