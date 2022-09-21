@@ -106,7 +106,11 @@ module.exports = class Validator {
           return null;
         }
         results = _.map(response.answer, (i) => {
-          return i.data.buffer.slice(5);
+          if (_.has(i, 'data.buffer')) {
+            return i.data.buffer.slice(5);
+          } else {
+            return null;
+          }
         });
       });
 

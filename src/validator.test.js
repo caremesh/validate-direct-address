@@ -43,4 +43,9 @@ describe('Validator @Validator', function() {
   it('should reject an direct addresss that\'s in an invalid format @Validator.8', function(done) {
     expect(validator.assertValid('xample.com')).to.be.rejected.and.notify(done);
   });
+
+  it('should properly handle a direct address where the lhs has embedded periods @Validator.9', async function() {
+    expect(await validator.isValid('suncoastcommunityhealthcenters.inc@suncoastchc.eclinicaldirectplus.com'))
+        .to.equal(true);
+  });
 });
