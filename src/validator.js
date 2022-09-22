@@ -2,6 +2,7 @@
 const Promise = require('bluebird');
 const debug = require('debug')('validate-direct-address');
 const dns = require('native-node-dns');
+const nodeDns = require('dns');
 const _ = require('lodash');
 
 const TrustBundle = require('./trust-bundle');
@@ -15,11 +16,18 @@ module.exports = class Validator {
    * @param {string} trustBundleUrl override the default trust bundle URL
    * @param {number} [timeout] DNS timeout
    * @param {number} [retries] how many times to retry
+   * @param {address} [address] the DNS server address to use
    */
-  constructor(trustBundleUrl, timeout=30000, retries = 3) {
+  constructor(trustBundleUrl, timeout=30000, retries = 3, address = null) {
     this.trustBundle = new TrustBundle(trustBundleUrl);
     this.timeout = timeout;
     this.retries = retries;
+    if (address) {
+      this.address = address;
+    } else {
+      this.address = nodeDns.getServers()[0];
+    }
+    debug(`DNS server address is ${this.address}`);
   }
 
   /**
@@ -57,7 +65,7 @@ module.exports = class Validator {
         if (results[0]) break;
       } catch (error) {
         try {
-          debug(`try #{i} for ${rhs}`);
+          debug(`try ${i} for ${rhs}`);
           results = await this._lookup(rhs);
           if (results[0]) break;
         } catch (error) {
@@ -83,6 +91,7 @@ module.exports = class Validator {
    * @return {Promise<string>}
    */
   _lookup(domain) {
+    const address = this.address;
     return new Promise((resolve, reject) => {
       let results;
       const question = dns.Question({
@@ -90,10 +99,10 @@ module.exports = class Validator {
         type: 'CERT',
       });
 
+      debug(`Address is ${address}`);
       const req = dns.Request({
         question: question,
-        server: {address: '8.8.8.8', port: 53, type: 'tcp',
-        },
+        server: {address, port: 53, type: 'tcp'},
         timeout: this.timeout,
       });
 

@@ -5,7 +5,7 @@ describe('Validator @Validator', function() {
   this.timeout(10000);
 
   before(async function() {
-    validator = new Validator(undefined, 1000, 3);
+    validator = new Validator(undefined, 5000, 3);
   });
 
   it('Should reject a "fake" direct address @Validator.1', function(done) {
@@ -42,5 +42,10 @@ describe('Validator @Validator', function() {
 
   it('should reject an direct addresss that\'s in an invalid format @Validator.8', function(done) {
     expect(validator.assertValid('xample.com')).to.be.rejected.and.notify(done);
+  });
+
+  it('should properly handle a direct address where the lhs has embedded periods @Validator.9', async function() {
+    expect(await validator.isValid('suncoastcommunityhealthcenters.inc@suncoastchc.eclinicaldirectplus.com'))
+        .to.equal(true);
   });
 });
