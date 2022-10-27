@@ -99,7 +99,7 @@ module.exports = class Validator {
         type: 'CERT',
       });
 
-      debug(`Address is ${address}`);
+      debug(`DNS Server is ${address}`);
       const req = dns.Request({
         question: question,
         server: {address, port: 53, type: 'tcp'},
@@ -114,9 +114,13 @@ module.exports = class Validator {
         if (_.get(response, 'answer.length', 0) == 0) {
           return null;
         }
-        results = _.map(response.answer, (i) => {
-          return i.data.buffer.slice(5);
-        });
+        results = _.compact(
+            _.map(response.answer, (i) => {
+              if (_.has(i, 'data.buffer')) {
+                return i.data.buffer.slice(5);
+              }
+            }),
+        );
       });
 
       req.on('error', function(error) {
