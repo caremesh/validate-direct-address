@@ -4,6 +4,7 @@ const debug = require('debug')('validate-direct-address');
 const dns = require('native-node-dns');
 const nodeDns = require('dns');
 const _ = require('lodash');
+const ldap = require('./ldap');
 
 const TrustBundle = require('./trust-bundle');
 
@@ -87,15 +88,15 @@ module.exports = class Validator {
 
   /**
    * Lookup a cert record for the specified domain
-   * @param {string} domain the domain name to lookup
+   * @param {string} binding the domain name to lookup
    * @return {Promise<string>}
    */
-  _lookup(domain) {
+  async _lookup(binding) {
     const address = this.address;
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       let results;
       const question = dns.Question({
-        name: domain,
+        name: binding,
         type: 'CERT',
       });
 
@@ -127,7 +128,16 @@ module.exports = class Validator {
         reject(error);
       });
 
-      req.on('end', function() {
+      req.on('end', async function() {
+        if (_.isEmpty(results)) {
+          let ldapCert = await ldap.lookup(binding);
+          if (ldapCert) {
+            ldapCert = Buffer.from(ldapCert, 'base64');
+            debug({ldapCert: ldapCert.toString()});
+            resolve([ldapCert]);
+          }
+        }
+
         resolve(results);
       });
 

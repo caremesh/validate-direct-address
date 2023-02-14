@@ -46,9 +46,14 @@ module.exports = class TrustBundle {
    * @return {boolean}
    */
   async verifyCert(cert) {
-    const der = Buffer.from(cert, 'base64');
-    const ber = new Uint8Array(der).buffer;
-    const crt = pkijs.Certificate.fromBER(ber);
+    let crt;
+    try {
+      const der = Buffer.from(cert, 'base64');
+      const ber = new Uint8Array(der).buffer;
+      crt = pkijs.Certificate.fromBER(ber);
+    } catch (error) {
+      crt = pkijs.Certificate.fromBER(cert);
+    }
 
     await this.fetch();
 

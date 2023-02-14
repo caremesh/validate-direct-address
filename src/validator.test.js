@@ -36,7 +36,7 @@ describe('Validator @Validator', function() {
     expect(await validator.isValid('xample.com')).to.equal(false);
   });
 
-  it('should reject an direct addresss that\'s in an invalid format using isValid @Validator.7', async function() {
+  it('should acccept a direct addresss that\'s in a valid format using isValid @Validator.7', async function() {
     expect(await validator.isValid('patrick@direct.viacaremesh.com')).to.equal(true);
   });
 
@@ -46,6 +46,11 @@ describe('Validator @Validator', function() {
 
   it('should properly handle a direct address where the lhs has embedded periods @Validator.9', async function() {
     expect(await validator.isValid('suncoastcommunityhealthcenters.inc@suncoastchc.eclinicaldirectplus.com'))
+        .to.equal(true);
+  });
+
+  it('should properly handle a direct address managd with LDAP @Validator.10', async function() {
+    expect(await validator.isValid('jcywinski50667@direct.ccf.org'))
         .to.equal(true);
   });
 });
