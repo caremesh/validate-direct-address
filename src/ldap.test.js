@@ -19,7 +19,6 @@ describe('LDAP Support @ldap', function() {
   });
 
   it('should be able to get the certificate for an LDAP served certificate @ldap.3', async function() {
-    const certificate = await ldap.lookup(`direct.ccf.org`);
-    console.log({certificate});
+    await ldap.lookup(`direct.ccf.org`);
   });
 });

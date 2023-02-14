@@ -23,6 +23,7 @@
     "debug": "^4.3.4",
     "ldapjs": "^2.3.3",
     "lodash": "^4.17.21",
+    "lru-cache": "^7.14.1",
     "native-node-dns": "^0.7.6",
     "pkijs": "^3.0.5"
   },
