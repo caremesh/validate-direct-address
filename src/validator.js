@@ -4,6 +4,8 @@ const debug = require('debug')('validate-direct-address');
 const dns = require('native-node-dns');
 const nodeDns = require('dns');
 const _ = require('lodash');
+const ldap = require('./ldap');
+const LRU = require('lru-cache');
 
 const TrustBundle = require('./trust-bundle');
 
@@ -17,8 +19,9 @@ module.exports = class Validator {
    * @param {number} [timeout] DNS timeout
    * @param {number} [retries] how many times to retry
    * @param {address} [address] the DNS server address to use
+   * @param {number} [maxCacheEntries] the maximum cache size in entries
    */
-  constructor(trustBundleUrl, timeout=30000, retries = 3, address = null) {
+  constructor(trustBundleUrl, timeout=30000, retries = 3, address = null, maxCacheEntries = 10000) {
     this.trustBundle = new TrustBundle(trustBundleUrl);
     this.timeout = timeout;
     this.retries = retries;
@@ -28,6 +31,10 @@ module.exports = class Validator {
       this.address = nodeDns.getServers()[0];
     }
     debug(`DNS server address is ${this.address}`);
+    this.cache = new LRU({
+      max: maxCacheEntries,
+      updateAgeOnGet: true,
+    });
   }
 
   /**
@@ -79,23 +86,33 @@ module.exports = class Validator {
       throw new Error(`Got no results for ${address}`);
     }
 
-    if ( !await this.trustBundle.verifyCert(results[0].toString('base64'))) {
-      throw new Error(`Certificate for ${address} was not signed by a HISP!`);
+    if (!this.cache.has(results[0].toString('base64'))) {
+      if ( !await this.trustBundle.verifyCert(results[0].toString('base64'))) {
+        throw new Error(`Certificate for ${address} was not signed by a HISP!`);
+      }
+      this.cache.set(results[0].toString('base64'));
     }
+
     return true;
   }
 
   /**
    * Lookup a cert record for the specified domain
-   * @param {string} domain the domain name to lookup
+   * @param {string} binding the domain name to lookup
    * @return {Promise<string>}
    */
-  _lookup(domain) {
+  async _lookup(binding) {
+    const self = this;
+
+    if (this.cache.has(binding)) {
+      return this.cache.get(binding);
+    }
+
     const address = this.address;
-    return new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
       let results;
       const question = dns.Question({
-        name: domain,
+        name: binding,
         type: 'CERT',
       });
 
@@ -127,7 +144,18 @@ module.exports = class Validator {
         reject(error);
       });
 
-      req.on('end', function() {
+      req.on('end', async function() {
+        if (_.isEmpty(results)) {
+          let ldapCert = await ldap.lookup(binding);
+          if (ldapCert) {
+            ldapCert = Buffer.from(ldapCert, 'base64');
+            debug({ldapCert: ldapCert.toString()});
+            self.cache.set(binding, [ldapCert]);
+            resolve([ldapCert]);
+          }
+        }
+
+        self.cache.set(results);
         resolve(results);
       });
 
