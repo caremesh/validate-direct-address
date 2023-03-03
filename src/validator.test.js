@@ -53,4 +53,21 @@ describe('Validator @Validator', function() {
     expect(await validator.isValid('jcywinski50667@direct.ccf.org'))
         .to.equal(true);
   });
+
+  it('should be able to lookup addresses at a single organization many times @Validate.11', async function() {
+    this.timeout(5000);
+    for (let i=0; i < 1000; i++) {
+      await validator.isValid(`patrick@direct.viacaremesh.com`);
+    }
+  });
+
+  describe('should be able to lookup addresses at a single organization many times @Validate.12', function() {
+    this.timeout(60000);
+    for (let i=0; i < 100; i++) {
+      it(
+          `Should validate test${i}@direct.viacaremesh.com @Validate.12.${i}`,
+          () => validator.isValid(`name${i}@direct.tgh.org`),
+      );
+    }
+  });
 });

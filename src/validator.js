@@ -10,8 +10,6 @@ const LRU = require('lru-cache');
 const TrustBundle = require('./trust-bundle');
 
 const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-
-
 module.exports = class Validator {
   /**
    *
@@ -86,11 +84,8 @@ module.exports = class Validator {
       throw new Error(`Got no results for ${address}`);
     }
 
-    if (!this.cache.has(results[0].toString('base64'))) {
-      if ( !await this.trustBundle.verifyCert(results[0].toString('base64'))) {
-        throw new Error(`Certificate for ${address} was not signed by a HISP!`);
-      }
-      this.cache.set(results[0].toString('base64'));
+    if ( !await this.trustBundle.verifyCert(results[0].toString('base64'))) {
+      throw new Error(`Certificate for ${address} was not signed by a HISP!`);
     }
 
     return true;
@@ -155,7 +150,7 @@ module.exports = class Validator {
           }
         }
 
-        self.cache.set(results);
+        self.cache.set(binding, results);
         resolve(results);
       });
 
