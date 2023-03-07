@@ -19,7 +19,7 @@ module.exports = class Validator {
    * @param {address} [address] the DNS server address to use
    * @param {number} [maxCacheEntries] the maximum cache size in entries
    */
-  constructor(trustBundleUrl, timeout=30000, retries = 3, address = null, maxCacheEntries = 10000) {
+  constructor(trustBundleUrl, timeout = 30000, retries = 3, address = null, maxCacheEntries = 10000) {
     this.trustBundle = new TrustBundle(trustBundleUrl);
     this.timeout = timeout;
     this.retries = retries;
@@ -63,7 +63,7 @@ module.exports = class Validator {
     // First lookup `user.domain.com`, then if that fails try `domain.com`
     const [lhs, rhs] = address.split(/@/);
     let results;
-    for (let i=0; i<this.retries; i++) {
+    for (let i = 0; i < this.retries; i++) {
       try {
         debug(`try ${i} for ${lhs}.${rhs}`);
         results = await this._lookup(`${lhs}.${rhs}`);
@@ -84,7 +84,7 @@ module.exports = class Validator {
       throw new Error(`Got no results for ${address}`);
     }
 
-    if ( !await this.trustBundle.verifyCert(results[0].toString('base64'))) {
+    if (!await this.trustBundle.verifyCert(results[0].toString('base64'))) {
       throw new Error(`Certificate for ${address} was not signed by a HISP!`);
     }
 
@@ -127,11 +127,11 @@ module.exports = class Validator {
           return null;
         }
         results = _.compact(
-            _.map(response.answer, (i) => {
-              if (_.has(i, 'data.buffer')) {
-                return i.data.buffer.slice(5);
-              }
-            }),
+          _.map(response.answer, (i) => {
+            if (_.has(i, 'data.buffer')) {
+              return i.data.buffer.slice(5);
+            }
+          }),
         );
       });
 
