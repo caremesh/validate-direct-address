@@ -13,7 +13,7 @@ describe('Validator @Validator', function() {
   });
 
 
-  it('should reject an direct addresss that\'s in an invalid format @Validator.2', function(done) {
+  it('should reject a direct addresss that\'s in an invalid format @Validator.2', function(done) {
     expect(validator.assertValid('xample.com')).to.be.rejected.and.notify(done);
   });
 
@@ -32,7 +32,7 @@ describe('Validator @Validator', function() {
   });
 
 
-  it('should reject an direct addresss that\'s in an invalid format using isValid @Validator.6', async function() {
+  it('should reject a direct addresss that\'s in an invalid format using isValid @Validator.6', async function() {
     expect(await validator.isValid('xample.com')).to.equal(false);
   });
 
@@ -40,18 +40,18 @@ describe('Validator @Validator', function() {
     expect(await validator.isValid('patrick@direct.viacaremesh.com')).to.equal(true);
   });
 
-  it('should reject an direct addresss that\'s in an invalid format @Validator.8', function(done) {
+  it('should reject a direct addresss that\'s in an invalid format @Validator.8', function(done) {
     expect(validator.assertValid('xample.com')).to.be.rejected.and.notify(done);
   });
 
   it('should properly handle a direct address where the lhs has embedded periods @Validator.9', async function() {
     expect(await validator.isValid('suncoastcommunityhealthcenters.inc@suncoastchc.eclinicaldirectplus.com'))
-        .to.equal(true);
+      .to.equal(true);
   });
 
   it('should properly handle a direct address managd with LDAP @Validator.10', async function() {
     expect(await validator.isValid('jcywinski50667@direct.ccf.org'))
-        .to.equal(true);
+      .to.equal(true);
   });
 
   it('should be able to lookup addresses at a single organization many times @Validate.11', async function() {
@@ -62,11 +62,11 @@ describe('Validator @Validator', function() {
   });
 
   describe('should be able to lookup addresses at a single organization many times @Validate.12', function() {
-    this.timeout(60000);
+    this.timeout(10000);
     for (let i=0; i < 100; i++) {
       it(
-          `Should validate test${i}@direct.viacaremesh.com @Validate.12.${i}`,
-          () => validator.isValid(`name${i}@direct.tgh.org`),
+        `Should validate name${i}@direct.viacaremesh.com @Validate.12.${i}`,
+        () => validator.assertValid(`name${i}@direct.viacaremesh.com`),
       );
     }
   });

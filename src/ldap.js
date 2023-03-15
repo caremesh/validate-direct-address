@@ -99,7 +99,7 @@ function lookupServiceUrls(binding, address) {
     });
 
     req.on('timeout', (err) => {
-      debug(`Got timeout error: ${err.message}`);
+      log.error(`Timeout trying to fetch information for ${binding} by ldap`);
       reject(new Error(`Timeout`));
     });
 

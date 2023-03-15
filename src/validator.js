@@ -72,7 +72,7 @@ module.exports = class Validator {
         try {
           debug(`try ${i} for ${rhs}`);
           results = await this._lookup(rhs);
-          if (results[0]) break;
+          if (_.isArray(results) && results[0]) break;
         } catch (error) {
           debug(error);
           throw new Error(`Could not find matching CERT record for ${address}: ${error.message}`);
@@ -119,6 +119,7 @@ module.exports = class Validator {
       });
 
       req.on('timeout', () => {
+        log.error(`Timeout trying to fetch information for ${binding}`);
         reject(new Error(`Timeout`));
       });
 
@@ -136,6 +137,7 @@ module.exports = class Validator {
       });
 
       req.on('error', function(error) {
+        log.error(`Caught error trying to validate ${binding}: ${_.get(error, 'message', 'undefined')}`);
         reject(error);
       });
 
