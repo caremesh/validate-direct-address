@@ -1,6 +1,9 @@
 {
-  "name": "validate-direct-address",
-  "version": "2.0.2",
+  "name": "@caremesh/validate-direct-address",
+  "version": "2.0.3",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "description": "This package validates that \"email\" addresses are in fact DirectTrust addresses.",
   "main": "index.js",
   "repository": "https://github.com/caremesh/validate-direct-address.git",
